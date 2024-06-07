@@ -1,5 +1,9 @@
 import json
 import boto3
+from decimal import Decimal
+
+dynamodb = boto3.resource('dynamodb')
+dbtable = dynamodb.Table('TodoListTable')
 
 def Hello(event, context):
     body = {
@@ -19,10 +23,6 @@ def Test(event, context):
 
 def CreateTodo(event, context):
     try:
-        # Initialize DynamoDB client
-        dynamodb = boto3.resource('dynamodb')
-        dbtable = dynamodb.Table('TodoListTable')
-        
         # Access the JSON payload directly from the event dictionary
         parsed_body = json.loads(event['body'])
         
@@ -32,7 +32,8 @@ def CreateTodo(event, context):
         # Process the parsed body as needed
 
         entry = {
-            'id': parsed_body['id'],
+            'todoID': parsed_body['todoID'],
+            'userId': parsed_body['userId'],
             'TaskName': parsed_body['TaskName'],
             'Description': parsed_body['Description'],
             'TimeLeft': parsed_body['TimeLeft'],
@@ -74,6 +75,9 @@ def GetTodoList(event, context):
         items = response['Items']
         print('extracted item', items)
 
+        # Convert the Decimal value to float
+        items = [{k: convert_decimal_to_float(v) if isinstance(v, Decimal) else v for k, v in item.items()} for item in items]
+
         # Return the items
         return {
             'statusCode': 200,
@@ -87,3 +91,14 @@ def GetTodoList(event, context):
             'statusCode': 500,
             'body': json.dumps({'error': str(e)})
         }
+
+# def GetTodoListById(event, context):
+#     try:
+#         key_condition_expression = Key('partition_key_name').eq()
+#     except Exception as e:
+#         print('Error:', e)
+   
+def convert_decimal_to_float(obj):
+    if isinstance(obj, Decimal):
+        return float(obj)
+    raise TypeError

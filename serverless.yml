@@ -25,6 +25,14 @@ functions:
       - httpApi:
           path: /hello
           method: get
+          cors: true
+
+          # Supposed!
+          # cors:
+          #   origin: '*'
+          #   headers:
+          #     - Content-Type
+          #   allowCredentials: false
 
   Test:
     handler: handler.Test
@@ -32,6 +40,7 @@ functions:
       - httpApi:
           path: /test
           method: get
+          cors: true
 
   CreateTodo:
     handler: handler.CreateTodo
@@ -39,6 +48,7 @@ functions:
       - httpApi:
           path: /todo/create
           method: post
+          cors: true
 
   GetTodoList:
     handler: handler.GetTodoList
@@ -46,6 +56,7 @@ functions:
       - httpApi:
           path: /todo
           method: get
+          cors: true
 
 package:
   exclude:
