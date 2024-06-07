@@ -1,0 +1,76 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: tedmarenoria
+# "app" enables Serverless Framework Dashboard features and sharing them with other Services.
+app: todo-list-backend
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: todo-app-backend
+
+provider:
+  name: aws
+  runtime: python3.8 # Set the Python runtime version
+  # region: us-east-1 # Set the AWS region where you want to deploy your service
+  lambdaHashingVersion: "20201221"
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action: "dynamodb:*"
+      Resource: "*"
+  environment:
+    # DYNAMODB_CARDS_TABLE_NAME: TodoListTable
+    DYNAMODB_TABLE_NAME: TodoListTable
+
+functions:
+  Hello:
+    handler: handler.Hello
+    events:
+      - httpApi:
+          path: /hello
+          method: get
+
+  Test:
+    handler: handler.Test
+    events:
+      - httpApi:
+          path: /test
+          method: get
+
+  CreateTodo:
+    handler: handler.CreateTodo
+    events:
+      - httpApi:
+          path: /todo/create
+          method: post
+
+  GetTodoList:
+    handler: handler.GetTodoList
+    events:
+      - httpApi:
+          path: /todo
+          method: get
+
+package:
+  exclude:
+    - venv/**
+    - node_modules/**
+
+resources:
+  Resources:
+    TodoListTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: TodoListTable
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: N
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: non-linux
